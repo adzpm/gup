@@ -82,7 +82,14 @@ func Run(ctx context.Context, cmd *cli.Command) error {
 	// Create cloner
 	cloner := git.NewCloner(git.WithLogger(lgr))
 
-	for _, project := range projects {
+	for _, glProject := range projects {
+		// Convert gitlab.Project to git.Project to avoid dependency on gitlab package in git module
+		project := &git.Project{
+			Name:              glProject.Name,
+			PathWithNamespace: glProject.PathWithNamespace,
+			HTTPURLToRepo:     glProject.HTTPURLToRepo,
+		}
+
 		skipped, err := cloner.CloneProject(project, cfg.TargetDir, cfg.GitLabToken)
 		if err != nil {
 			lgr.Errorf("Error cloning %s: %v", project.Name, err)

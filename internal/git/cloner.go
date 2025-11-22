@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/go-git/go-git/v5"
-	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 // Cloner handles git cloning operations
@@ -24,8 +23,8 @@ func NewCloner(opts ...ClonerOption) *Cloner {
 	return &Cloner{opts: options}
 }
 
-// CloneProject clones a GitLab project to the target directory
-func (c *Cloner) CloneProject(project *gitlab.Project, targetDir string, token string) (bool, error) {
+// CloneProject clones a project to the target directory
+func (c *Cloner) CloneProject(project *Project, targetDir string, token string) (bool, error) {
 	// Use PathWithNamespace to preserve directory structure (e.g., helios/tests/atlassian/jira)
 	projectPath := filepath.Join(targetDir, project.PathWithNamespace)
 

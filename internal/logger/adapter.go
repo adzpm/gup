@@ -25,9 +25,10 @@ func New(opts ...Option) Logger {
 	}
 
 	l := log.NewWithOptions(os.Stdout, log.Options{
-		Prefix:     "glup",
-		TimeFormat: time.Kitchen,
-		Level:      log.DebugLevel,
+		Prefix:          "glup",
+		TimeFormat:      time.Kitchen,
+		Level:           log.DebugLevel,
+		ReportTimestamp: true,
 	})
 
 	return NewAdapter(l)
