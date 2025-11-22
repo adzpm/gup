@@ -298,7 +298,7 @@ func cloneCommand(ctx context.Context, cmd *cli.Command) error {
 
 func main() {
 	app := &cli.Command{
-		Name:  "gup",
+		Name:  "glup",
 		Usage: "Clones all available repositories from GitLab",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
