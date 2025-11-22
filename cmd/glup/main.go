@@ -166,7 +166,8 @@ func getAllProjects(client *gitlab.Client, groupName string) ([]*gitlab.Project,
 }
 
 func cloneProject(project *gitlab.Project, targetDir string, token string) (bool, error) {
-	projectPath := filepath.Join(targetDir, project.Path)
+	// Use PathWithNamespace to preserve directory structure (e.g., helios/tests/atlassian/jira)
+	projectPath := filepath.Join(targetDir, project.PathWithNamespace)
 
 	// Check if directory already exists and if it's a git repository
 	if info, err := os.Stat(projectPath); err == nil {
@@ -193,7 +194,13 @@ func cloneProject(project *gitlab.Project, targetDir string, token string) (bool
 		}
 	}
 
-	// Clone repository (git.PlainClone creates directory itself)
+	// Create parent directories if they don't exist
+	parentDir := filepath.Dir(projectPath)
+	if err := os.MkdirAll(parentDir, 0755); err != nil {
+		return false, fmt.Errorf("failed to create parent directory %s: %w", parentDir, err)
+	}
+
+	// Clone repository (git.PlainClone creates the final directory itself)
 	log.Infof("Cloning %s to %s", project.Name, projectPath)
 	_, err := git.PlainClone(projectPath, false, &git.CloneOptions{
 		URL:      cloneURL,
