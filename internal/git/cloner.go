@@ -25,7 +25,7 @@ func NewCloner(opts ...ClonerOption) *Cloner {
 
 // CloneProject clones a project to the target directory
 func (c *Cloner) CloneProject(project *Project, targetDir string, token string) (bool, error) {
-	// Use PathWithNamespace to preserve directory structure (e.g., helios/tests/atlassian/jira)
+	// Use PathWithNamespace to preserve directory structure
 	projectPath := filepath.Join(targetDir, project.PathWithNamespace)
 
 	// Check if directory already exists and if it's a git repository

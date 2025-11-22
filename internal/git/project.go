@@ -4,7 +4,7 @@ package git
 type Project struct {
 	// Name is the project name
 	Name string
-	// PathWithNamespace is the full path including namespace (e.g., "helios/tests/atlassian/jira")
+	// PathWithNamespace is the full path including namespace
 	PathWithNamespace string
 	// HTTPURLToRepo is the HTTP URL for cloning the repository
 	HTTPURLToRepo string
