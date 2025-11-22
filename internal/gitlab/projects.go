@@ -3,7 +3,6 @@ package gitlab
 import (
 	"fmt"
 
-	"github.com/charmbracelet/log"
 	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
@@ -24,7 +23,7 @@ func (c *Client) getGroupProjects(groupName string) ([]*gitlab.Project, error) {
 		return nil, fmt.Errorf("error getting group %s: %w (make sure the group path/name is correct)", groupName, err)
 	}
 
-	log.Infof("Found group: %s (ID: %d, Path: %s)", group.Name, group.ID, group.FullPath)
+	c.logger.Infof("Found group: %s (ID: %d, Path: %s)", group.Name, group.ID, group.FullPath)
 
 	// Try different combinations to find projects
 	// First try with IncludeSubGroups and without Archived filter
@@ -37,7 +36,7 @@ func (c *Client) getGroupProjects(groupName string) ([]*gitlab.Project, error) {
 	}
 
 	// Use group ID directly (as int, which is more reliable)
-	log.Infof("Fetching projects for group ID: %d (include_subgroups: true, all projects)", group.ID)
+	c.logger.Infof("Fetching projects for group ID: %d (include_subgroups: true, all projects)", group.ID)
 
 	for {
 		projects, resp, err := c.Groups.ListGroupProjects(group.ID, groupOpt)
@@ -45,7 +44,7 @@ func (c *Client) getGroupProjects(groupName string) ([]*gitlab.Project, error) {
 			return nil, fmt.Errorf("error getting projects for group %d (%s): %w", group.ID, group.FullPath, err)
 		}
 
-		log.Infof("Page %d: found %d projects", groupOpt.Page, len(projects))
+		c.logger.Infof("Page %d: found %d projects", groupOpt.Page, len(projects))
 		allProjects = append(allProjects, projects...)
 
 		if resp.NextPage == 0 {
@@ -55,22 +54,22 @@ func (c *Client) getGroupProjects(groupName string) ([]*gitlab.Project, error) {
 		groupOpt.Page = resp.NextPage
 	}
 
-	log.Infof("Total projects found in group (including subgroups): %d", len(allProjects))
+	c.logger.Infof("Total projects found in group (including subgroups): %d", len(allProjects))
 
 	// If no projects found, try without IncludeSubGroups to see if there are projects in the group itself
 	if len(allProjects) == 0 {
-		log.Warn("No projects found with subgroups, trying without IncludeSubGroups...")
+		c.logger.Warn("No projects found with subgroups, trying without IncludeSubGroups...")
 		groupOpt.IncludeSubGroups = gitlab.Ptr(false)
 		groupOpt.Page = 1
 
 		for {
 			projects, resp, err := c.Groups.ListGroupProjects(group.ID, groupOpt)
 			if err != nil {
-				log.Warnf("Error getting projects without subgroups: %v", err)
+				c.logger.Warnf("Error getting projects without subgroups: %v", err)
 				break
 			}
 
-			log.Infof("Page %d (no subgroups): found %d projects", groupOpt.Page, len(projects))
+			c.logger.Infof("Page %d (no subgroups): found %d projects", groupOpt.Page, len(projects))
 			allProjects = append(allProjects, projects...)
 
 			if resp.NextPage == 0 {
@@ -80,7 +79,7 @@ func (c *Client) getGroupProjects(groupName string) ([]*gitlab.Project, error) {
 			groupOpt.Page = resp.NextPage
 		}
 
-		log.Infof("Total projects found in group (without subgroups): %d", len(allProjects))
+		c.logger.Infof("Total projects found in group (without subgroups): %d", len(allProjects))
 	}
 
 	return allProjects, nil
@@ -90,7 +89,7 @@ func (c *Client) getAllAccessibleProjects() ([]*gitlab.Project, error) {
 	var allProjects []*gitlab.Project
 
 	// Try multiple approaches to get all projects
-	log.Info("Fetching all accessible projects...")
+	c.logger.Info("Fetching all accessible projects...")
 
 	// First, try without any filters to get all projects
 	opt := &gitlab.ListProjectsOptions{
@@ -108,11 +107,11 @@ func (c *Client) getAllAccessibleProjects() ([]*gitlab.Project, error) {
 			return nil, fmt.Errorf("error getting project list: %w", err)
 		}
 
-		log.Infof("Page %d: found %d projects (total so far: %d)", opt.Page, len(projects), len(allProjects)+len(projects))
+		c.logger.Infof("Page %d: found %d projects (total so far: %d)", opt.Page, len(projects), len(allProjects)+len(projects))
 		allProjects = append(allProjects, projects...)
 
 		if resp.NextPage == 0 {
-			log.Infof("No more pages. Total projects: %d", len(allProjects))
+			c.logger.Infof("No more pages. Total projects: %d", len(allProjects))
 			break
 		}
 
@@ -121,7 +120,7 @@ func (c *Client) getAllAccessibleProjects() ([]*gitlab.Project, error) {
 
 	// If we got less than expected, try with Membership=true to get projects where user is a member
 	if len(allProjects) < 200 {
-		log.Warnf("Only found %d projects, trying with Membership=true to get member projects...", len(allProjects))
+		c.logger.Warnf("Only found %d projects, trying with Membership=true to get member projects...", len(allProjects))
 		memberOpt := &gitlab.ListProjectsOptions{
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
@@ -140,11 +139,11 @@ func (c *Client) getAllAccessibleProjects() ([]*gitlab.Project, error) {
 		for {
 			projects, resp, err := c.Projects.ListProjects(memberOpt)
 			if err != nil {
-				log.Warnf("Error getting member projects: %v", err)
+				c.logger.Warnf("Error getting member projects: %v", err)
 				break
 			}
 
-			log.Infof("Membership page %d: found %d projects", memberOpt.Page, len(projects))
+			c.logger.Infof("Membership page %d: found %d projects", memberOpt.Page, len(projects))
 			for _, p := range projects {
 				if _, exists := memberProjects[p.ID]; !exists {
 					allProjects = append(allProjects, p)
@@ -159,7 +158,7 @@ func (c *Client) getAllAccessibleProjects() ([]*gitlab.Project, error) {
 			memberOpt.Page = resp.NextPage
 		}
 
-		log.Infof("After adding member projects: %d total projects", len(allProjects))
+		c.logger.Infof("After adding member projects: %d total projects", len(allProjects))
 	}
 
 	return allProjects, nil

@@ -8,12 +8,14 @@ import (
 	"github.com/adzpm/glup/internal/config"
 	"github.com/adzpm/glup/internal/git"
 	"github.com/adzpm/glup/internal/gitlab"
+	"github.com/adzpm/glup/internal/logger"
 	"github.com/adzpm/glup/internal/netrc"
-	"github.com/charmbracelet/log"
 	"github.com/urfave/cli/v3"
 )
 
 func cloneCommand(ctx context.Context, cmd *cli.Command) error {
+	// Create logger instance
+	lgr := logger.New()
 	cfg := &config.Config{
 		GitLabHost:  cmd.String("gitlab-host"),
 		GitLabUser:  cmd.String("gitlab-user"),
@@ -32,14 +34,14 @@ func cloneCommand(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	// Load credentials from .netrc if not specified via flags
-	netrcCfg, err := netrc.LoadCredentials()
+	netrcCfg, err := netrc.LoadCredentials(lgr)
 	if err != nil {
 		return fmt.Errorf("error loading .netrc: %w", err)
 	}
 
 	if netrcCfg != nil {
 		cfg.Merge(netrcCfg)
-		log.Info("Using credentials from .netrc")
+		lgr.Info("Using credentials from .netrc")
 	}
 
 	// Validate configuration
@@ -48,19 +50,19 @@ func cloneCommand(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	// Create GitLab client
-	client, err := gitlab.NewClient(cfg)
+	client, err := gitlab.NewClient(cfg, lgr)
 	if err != nil {
 		return err
 	}
 
 	// Get project list
-	log.Info("Getting project list...")
+	lgr.Info("Getting project list...")
 	projects, err := client.GetAllProjects(cfg.Group)
 	if err != nil {
 		return err
 	}
 
-	log.Infof("Found projects: %d", len(projects))
+	lgr.Infof("Found projects: %d", len(projects))
 
 	// Create target directory if it doesn't exist
 	if err := os.MkdirAll(cfg.TargetDir, 0755); err != nil {
@@ -73,9 +75,9 @@ func cloneCommand(ctx context.Context, cmd *cli.Command) error {
 	errorCount := 0
 
 	for _, project := range projects {
-		skipped, err := git.CloneProject(project, cfg.TargetDir, cfg.GitLabToken)
+		skipped, err := git.CloneProject(project, cfg.TargetDir, cfg.GitLabToken, lgr)
 		if err != nil {
-			log.Errorf("Error cloning %s: %v", project.Name, err)
+			lgr.Errorf("Error cloning %s: %v", project.Name, err)
 			errorCount++
 		} else if skipped {
 			skipCount++
@@ -84,12 +86,15 @@ func cloneCommand(ctx context.Context, cmd *cli.Command) error {
 		}
 	}
 
-	log.Infof("Completed. Success: %d, Skipped: %d, Errors: %d", successCount, skipCount, errorCount)
+	lgr.Infof("Completed. Success: %d, Skipped: %d, Errors: %d", successCount, skipCount, errorCount)
 
 	return nil
 }
 
 func main() {
+	// Create logger instance
+	lgr := logger.New()
+
 	app := &cli.Command{
 		Name:  "glup",
 		Usage: "Clones all available repositories from GitLab",
@@ -127,6 +132,6 @@ func main() {
 	}
 
 	if err := app.Run(context.Background(), os.Args); err != nil {
-		log.Fatal(err)
+		lgr.Fatal(err)
 	}
 }

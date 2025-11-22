@@ -13,7 +13,7 @@ import (
 )
 
 // LoadCredentials loads GitLab credentials from .netrc file
-func LoadCredentials() (*config.Config, error) {
+func LoadCredentials(logger *log.Logger) (*config.Config, error) {
 	usr, err := user.Current()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current user: %w", err)
@@ -39,9 +39,9 @@ func LoadCredentials() (*config.Config, error) {
 	}
 
 	if len(gitlabMachines) > 1 {
-		log.Warn("Found multiple GitLab entries in .netrc, will use the first one")
+		logger.Warn("Found multiple GitLab entries in .netrc, will use the first one")
 		for i, m := range gitlabMachines {
-			log.Infof("  %d. %s", i+1, m.Name)
+			logger.Infof("  %d. %s", i+1, m.Name)
 		}
 	}
 

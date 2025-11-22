@@ -18,7 +18,7 @@ type CloneResult struct {
 }
 
 // CloneProject clones a GitLab project to the target directory
-func CloneProject(project *gitlab.Project, targetDir string, token string) (bool, error) {
+func CloneProject(project *gitlab.Project, targetDir string, token string, logger *log.Logger) (bool, error) {
 	// Use PathWithNamespace to preserve directory structure (e.g., helios/tests/atlassian/jira)
 	projectPath := filepath.Join(targetDir, project.PathWithNamespace)
 
@@ -27,11 +27,11 @@ func CloneProject(project *gitlab.Project, targetDir string, token string) (bool
 		if info.IsDir() {
 			// Check if this is a git repository
 			if _, err := git.PlainOpen(projectPath); err == nil {
-				log.Warnf("Project %s already exists in %s, skipping", project.Name, projectPath)
+				logger.Warnf("Project %s already exists in %s, skipping", project.Name, projectPath)
 				return true, nil // true means the project was skipped
 			}
 			// If directory exists but is not a git repository, remove it
-			log.Warnf("Directory %s exists but is not a git repository, removing", projectPath)
+			logger.Warnf("Directory %s exists but is not a git repository, removing", projectPath)
 			os.RemoveAll(projectPath)
 		}
 	}
@@ -54,7 +54,7 @@ func CloneProject(project *gitlab.Project, targetDir string, token string) (bool
 	}
 
 	// Clone repository (git.PlainClone creates the final directory itself)
-	log.Infof("Cloning %s to %s", project.Name, projectPath)
+	logger.Infof("Cloning %s to %s", project.Name, projectPath)
 	_, err := git.PlainClone(projectPath, false, &git.CloneOptions{
 		URL:      cloneURL,
 		Progress: os.Stdout,
@@ -66,6 +66,6 @@ func CloneProject(project *gitlab.Project, targetDir string, token string) (bool
 		return false, fmt.Errorf("error cloning %s: %w", project.Name, err)
 	}
 
-	log.Infof("Successfully cloned: %s", project.Name)
+	logger.Infof("Successfully cloned: %s", project.Name)
 	return false, nil // false means the project was successfully cloned
 }

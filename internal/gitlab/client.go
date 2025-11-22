@@ -11,10 +11,11 @@ import (
 // Client wraps GitLab API client
 type Client struct {
 	*gitlab.Client
+	logger *log.Logger
 }
 
 // NewClient creates a new GitLab client and authenticates
-func NewClient(cfg *config.Config) (*Client, error) {
+func NewClient(cfg *config.Config, logger *log.Logger) (*Client, error) {
 	baseURL := fmt.Sprintf("https://%s", cfg.GitLabHost)
 	client, err := gitlab.NewClient(cfg.GitLabToken, gitlab.WithBaseURL(baseURL))
 	if err != nil {
@@ -27,6 +28,9 @@ func NewClient(cfg *config.Config) (*Client, error) {
 		return nil, fmt.Errorf("failed to authenticate with GitLab: %w", err)
 	}
 
-	log.Infof("Authenticated as: %s (%s)", user.Username, user.Email)
-	return &Client{Client: client}, nil
+	logger.Infof("Authenticated as: %s (%s)", user.Username, user.Email)
+	return &Client{
+		Client: client,
+		logger: logger,
+	}, nil
 }
