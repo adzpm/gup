@@ -14,7 +14,7 @@ import (
 	netrc "github.com/adzpm/glup/internal/netrc"
 )
 
-func Clone(ctx context.Context, cmd *cli.Command) error {
+func Run(ctx context.Context, cmd *cli.Command) error {
 	// Create logger instance
 	lgr := logger.New()
 	cfg := &config.Config{
