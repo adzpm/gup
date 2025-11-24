@@ -25,7 +25,7 @@ func New(opts ...Option) Logger {
 	}
 
 	l := log.NewWithOptions(os.Stdout, log.Options{
-		Prefix:          "glup",
+		Prefix:          "glone",
 		TimeFormat:      time.Kitchen,
 		Level:           log.DebugLevel,
 		ReportTimestamp: true,

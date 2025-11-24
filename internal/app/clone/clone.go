@@ -7,11 +7,11 @@ import (
 
 	cli "github.com/urfave/cli/v3"
 
-	config "github.com/adzpm/glup/internal/config"
-	git "github.com/adzpm/glup/internal/git"
-	gitlab "github.com/adzpm/glup/internal/gitlab"
-	logger "github.com/adzpm/glup/internal/logger"
-	netrc "github.com/adzpm/glup/internal/netrc"
+	config "github.com/adzpm/glone/internal/config"
+	git "github.com/adzpm/glone/internal/git"
+	gitlab "github.com/adzpm/glone/internal/gitlab"
+	logger "github.com/adzpm/glone/internal/logger"
+	netrc "github.com/adzpm/glone/internal/netrc"
 )
 
 func Run(ctx context.Context, cmd *cli.Command) error {

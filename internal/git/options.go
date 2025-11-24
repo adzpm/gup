@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	logger "github.com/adzpm/glup/internal/logger"
+	logger "github.com/adzpm/glone/internal/logger"
 )
 
 // ClonerOptions holds cloner configuration options

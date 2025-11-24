@@ -3,7 +3,7 @@ version: '3'
 silent: false
 
 vars:
-  _BINNAME: "glup"
+  _BINNAME: "glone"
   _BINDIR: "bin"
 
 tasks:

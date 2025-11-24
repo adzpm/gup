@@ -6,8 +6,8 @@ import (
 
 	cli "github.com/urfave/cli/v3"
 
-	clone "github.com/adzpm/glup/internal/app/clone"
-	logger "github.com/adzpm/glup/internal/logger"
+	clone "github.com/adzpm/glone/internal/app/clone"
+	logger "github.com/adzpm/glone/internal/logger"
 )
 
 // flags returns global flags for the application
@@ -36,7 +36,7 @@ func main() {
 	lgr := logger.New()
 
 	app := &cli.Command{
-		Name:  "glup",
+		Name:  "glone",
 		Usage: "Clones all available repositories from GitLab",
 		Flags: flags(),
 		Commands: []*cli.Command{

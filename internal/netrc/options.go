@@ -4,7 +4,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	logger "github.com/adzpm/glup/internal/logger"
+	logger "github.com/adzpm/glone/internal/logger"
 )
 
 // LoaderOptions holds netrc loader configuration options

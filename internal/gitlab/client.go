@@ -5,7 +5,7 @@ import (
 
 	gitlab "gitlab.com/gitlab-org/api/client-go"
 
-	config "github.com/adzpm/glup/internal/config"
+	config "github.com/adzpm/glone/internal/config"
 )
 
 // Client wraps GitLab API client

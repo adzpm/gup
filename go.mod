@@ -1,4 +1,4 @@
-module github.com/adzpm/glup
+module github.com/adzpm/glone
 
 go 1.25.4
 

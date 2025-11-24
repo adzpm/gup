@@ -7,7 +7,7 @@ import (
 
 	netrc "github.com/jdx/go-netrc"
 
-	config "github.com/adzpm/glup/internal/config"
+	config "github.com/adzpm/glone/internal/config"
 )
 
 // Loader handles loading credentials from .netrc

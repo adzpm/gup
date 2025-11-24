@@ -1,10 +1,10 @@
-# glup
+# glone
 
 Command-line utility for cloning all accessible GitLab repositories.
 
 ## Description
 
-`glup` connects to a GitLab instance via API, retrieves all accessible projects, and clones them to a local directory.
+`glone` connects to a GitLab instance via API, retrieves all accessible projects, and clones them to a local directory.
 
 The tool preserves the original directory structure from GitLab
 (e.g., `backend/tests/auth` is cloned to `target-dir/backend/tests/auth`).
@@ -14,13 +14,13 @@ The tool preserves the original directory structure from GitLab
 ### go
 
 ```bash
-go install github.com/adzpm/glup@latest
+go install github.com/adzpm/glone@latest
 ```
 
 ## Usage
 
 ```
-glup [global options] clone [options] [directory]
+glone [global options] clone [options] [directory]
 ```
 
 ### Global Options
